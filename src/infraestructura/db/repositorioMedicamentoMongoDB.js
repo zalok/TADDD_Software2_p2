@@ -1,4 +1,3 @@
-// src/infrastructure/database/mongoRepositorioMedicamento.js
 const { ObjectId } = require('mongodb');
 const RepositorioMedicamento = require('../../dominio/repositorio/repositorioMedicamento');
 const Medicamento = require('../../dominio/entidades/medicamento');
@@ -11,7 +10,7 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
 
     async save(medicamento) {
         const medicamentoData = medicamento.toObject();
-        delete medicamentoData._id;
+        delete medicamentoData._id; // Mongo genera el _id
 
         const result = await this.collection.insertOne(medicamentoData);
         return Medicamento.fromObject({
@@ -21,9 +20,14 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
     }
 
     async findById(id) {
-        const objectId = new ObjectId(id);
-        const result = await this.collection.findOne({ _id: objectId });
-        return result ? Medicamento.fromObject(result) : null;
+        try {
+            const objectId = new ObjectId(id);
+            const result = await this.collection.findOne({ _id: objectId });
+            return result ? Medicamento.fromObject(result) : null;
+        } catch (err) {
+            console.error('findById error:', err);
+            return null;
+        }
     }
 
     async findAll() {
@@ -32,26 +36,33 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
     }
 
     async update(id, medicamento) {
-        const objectId = new ObjectId(id);
-        const medicamentoData = medicamento.toObject();
-        delete medicamentoData._id;
+        try {
+            const objectId = new ObjectId(id);
+            const medicamentoData = medicamento.toObject();
+            delete medicamentoData._id;
 
-        const result = await this.collection.updateOne(
-            { _id: objectId },
-            { $set: medicamentoData }
-        );
+            const result = await this.collection.updateOne(
+                { _id: objectId },
+                { $set: medicamentoData }
+            );
 
-        if (result.matchedCount === 0) {
+            if (result.matchedCount === 0) return null;
+            return await this.findById(id);
+        } catch (err) {
+            console.error('update error:', err);
             return null;
         }
-
-        return await this.findById(id);
     }
 
     async delete(id) {
-        const objectId = new ObjectId(id);
-        const result = await this.collection.deleteOne({ _id: objectId });
-        return result.deletedCount > 0;
+        try {
+            const objectId = new ObjectId(id);
+            const result = await this.collection.deleteOne({ _id: objectId });
+            return result.deletedCount > 0;
+        } catch (err) {
+            console.error('delete error:', err);
+            return false;
+        }
     }
 
     async findByPrincipioActivo(principioActivo) {
