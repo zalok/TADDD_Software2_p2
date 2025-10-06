@@ -45,10 +45,23 @@ class App {
     const medicamentoRepository = new MongoRepositorioMedicamento(db);
     const medicamentoService = new MedicamentoService(medicamentoRepository);
     this.medicamentoController = new MedicamentoController(medicamentoService);
+    
+      // GraphQL
+      const { graphqlHTTP } = require('express-graphql');
+      const { createRootSchema } = require('./src/infraestructura/web/graphql/resolvers');
+    
+      // GraphQL schema (inyección de servicio)
+      const graphqlSchema = createRootSchema(medicamentoService);
 
     // Configuración de rutas
     const medicamentoRoutes = createMedicamentoRoutes(this.medicamentoController);
     this.app.use('/medicamentos', medicamentoRoutes);
+    
+      // Montar endpoint /graphql
+      this.app.use('/graphql', graphqlHTTP({
+        schema: graphqlSchema,
+        graphiql: process.env.NODE_ENV !== 'production'
+      }));
 
     // Ruta de salud
     this.app.get('/health', (req, res) => {

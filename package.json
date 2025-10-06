@@ -24,6 +24,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.20.0",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "graphql": "^16.7.1",
+    "express-graphql": "^0.12.0"
   }
 }
