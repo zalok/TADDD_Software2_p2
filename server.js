@@ -1,30 +1,81 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const { MongoClient, ObjectId } = require('mongodb');
+const { MongoClient } = require('mongodb');
 const jwt = require('jsonwebtoken');
 
 dotenv.config();
 
-const mongoUri = process.env.MONGO_DB;
-const client = new MongoClient(mongoUri);
+const MongoRepositorioMedicamento = require('./src/infraestructura/db/repositorioMedicamentoMongoDB');
+const MedicamentoService = require('./src/aplicacion/servicios/servicioMedicamento');
+const MedicamentoController = require('./src/aplicacion/controladores/controladorMedicamento');
+const createMedicamentoRoutes = require('./src/infraestructura/web/rutas/rutasMedicamento');
+
+// Variables de entorno
+const mongoUri = process.env.MONGO_URI;
+const dbName = process.env.MONGO_DBNAME || 'farmacia';  //
 const port = process.env.PORT || 8000;
-const jwtSecret = process.env.JWT_SECRET
+const jwtSecret = process.env.JWT_SECRET;
 
-const app = express();
-app.use(express.json());
+const client = new MongoClient(mongoUri);
 
-//api inciada en el puerto
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+class App {
+  constructor() {
+    this.app = express();
+    this.port = port;
+    this.medicamentoController = null;
+  }
 
-let db;
-client.connect()
-  .then(() => {
-    db = client.db('TADDD_Software2_p2');
-    console.log('Connected to MongoDB');
-  })
-  .catch(err => console.error('Failed to connect to MongoDB', err));
+  async initialize() {
+    // Middlewares
+    this.app.use(express.json());
 
+    // Conexión con MongoDB
+    try {
+      await client.connect();
+      console.log('✅ Conectado a MongoDB');
+    } catch (error) {
+      console.error('❌ Error al conectar a MongoDB:', error);
+      process.exit(1);
+    }
 
+    // Obtenemos la base de datos correcta
+    const db = client.db(dbName);
 
+    // Inyección de dependencias
+    const medicamentoRepository = new MongoRepositorioMedicamento(db);
+    const medicamentoService = new MedicamentoService(medicamentoRepository);
+    this.medicamentoController = new MedicamentoController(medicamentoService);
+
+    // Configuración de rutas
+    const medicamentoRoutes = createMedicamentoRoutes(this.medicamentoController);
+    this.app.use('/medicamentos', medicamentoRoutes);
+
+    // Ruta de salud
+    this.app.get('/health', (req, res) => {
+      res.json({ status: 'OK', message: 'API de Farmacia funcionando' });
+    });
+
+   //manejo de errores 404
+    this.app.use((req, res) => {
+      res.status(404).json({
+        success: false,
+        error: 'Ruta no encontrada'
+      });
+    });
+  }
+
+  start() {
+    this.app.listen(this.port, () => {
+      console.log(`🚀 Servidor corriendo en puerto ${this.port}`);
+    });
+  }
+}
+
+// Inicializar app
+async function main() {
+  const app = new App();
+  await app.initialize();
+  app.start();
+}
+
+main().catch(console.error);

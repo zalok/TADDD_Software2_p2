@@ -1,5 +1,10 @@
-// para poblar la db ejecutar: mongosh despues copiar y pegar todo el archivo y darle enter
-db.medicamentos.insertMany([
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
+
+const uri = process.env.MONGO_URI;
+const dbName = process.env.MONGO_DBNAME;
+
+const medicamentos = [
   {
     "principio_activo": "Acerocumarol",
     "forma": {
@@ -3220,4 +3225,20 @@ db.medicamentos.insertMany([
     "requiere_receta": false,
     "via_administracion": "Oral"
   }
-])
+];
+
+async function poblar() {
+  const client = new MongoClient(uri, { useUnifiedTopology: true });
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const result = await db.collection('medicamentos').insertMany(medicamentos);
+    console.log(`✅ Insertados ${result.insertedCount} medicamentos`);
+  } catch (err) {
+    console.error('❌ Error poblando la DB:', err);
+  } finally {
+    await client.close();
+  }
+}
+
+poblar();

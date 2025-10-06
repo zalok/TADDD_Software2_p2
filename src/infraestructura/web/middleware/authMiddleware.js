@@ -8,13 +8,14 @@ const jwtAuth = (req, res, next) => {
             error: 'Token de autenticación requerido'
         });
     }
+    const tokenPrivate = process.env.SECRET
 
     const token = authHeader.split(' ')[1];
 
-    if (token !== 'secreto123') {
+    if (token !== tokenPrivate) {
         return res.status(401).json({
             success: false,
-            error: 'Token inválido'
+            error: 'Error de servidor'
         });
     }
 
