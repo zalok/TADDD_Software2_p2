@@ -1,5 +1,5 @@
 // para poblar la db ejecutar: mongosh despues copiar y pegar todo el archivo y darle enter
-db.petitorio_oficial.insertMany([
+db.medicamentos.insertMany([
   {
     "principio_activo": "Acerocumarol",
     "forma": {

@@ -26,7 +26,7 @@ class App {
         // Conexión a MongoDB
         const client = new MongoClient(process.env.MONGO_URI || 'mongodb://localhost:27017');
         await client.connect();
-        const db = client.db('farmaciaDB');
+        const db = client.db('farmacia');
 
         // Inyección de dependencias
         const medicamentoRepository = new MongoRepositorioMedicamento(db);
