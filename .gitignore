@@ -6,7 +6,8 @@ node_modules/
 
 # Ignore environment variable files
 .env
-
+# Ignore venv
+venv/
 # Ignore build output directories
 dist/
 build/
