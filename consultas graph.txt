@@ -1,0 +1,65 @@
+mutation {
+  crearMedicamento(
+    principio_activo: "Ibuprofeeeeno",
+    forma: {
+      tipo_de_forma: "Comprimido",
+      dosis: {
+        tipo_de_unidad: "mg",
+        cantidad_de_dosis: 400
+      }
+    },
+    categoria: "Antiinflamatorio",
+    es_controlado: false,
+    requiere_receta: false,
+    via_administracion: "Oral",
+    alternativas: ["Naproxeno"]
+  ) {
+    _id
+    principio_activo
+  }
+}
+# Para crear un nuevo medicamento
+query {
+  medicamentos {
+    _id
+    principio_activo
+		forma{
+      tipo_de_forma
+      dosis{
+        tipo_de_unidad
+        cantidad_de_dosis
+      }
+    },
+    categoria
+    es_controlado
+    requiere_receta
+
+  }
+}
+###Para obtener todos los medicamentos
+mutation {
+  eliminarMedicamento(id: "68e41f5cc51a1155a3599e98")
+}
+## Para elminar producto
+
+mutation {
+  actualizarMedicamento(
+    id: "68e3c5484f3bebf19fff0471",
+    categoria: "Analgesico Mejorado"
+  ) {
+    _id
+    categoria
+  }
+}
+##actualizar
+
+query{
+ medicamento(id:"68e3c5484f3bebf19fff0475") {
+   _id
+  principio_activo
+  categoria
+ }
+}
+
+# npm run dev pa que corra 
+# http://localhost:3000/graphql

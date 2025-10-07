@@ -1,4 +1,6 @@
 // src/application/services/medicamentoService.js
+// trae medicamento
+const Medicamento = require('../../dominio/entidades/medicamento');5
 class MedicamentoService {
     constructor(medicamentoRepository) {
         this.medicamentoRepository = medicamentoRepository;
