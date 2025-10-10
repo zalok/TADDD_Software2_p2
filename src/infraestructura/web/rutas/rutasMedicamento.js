@@ -14,11 +14,14 @@ function createMedicamentoRoutes(medicamentoController) {
     // POST /medicamentos - Crear nuevo medicamento (protegido con JWT)
     router.post('/', jwtAuth, medicamentoController.crearMedicamento.bind(medicamentoController));
 
-    // PUT /medicamentos/:id - Actualizar medicamento completo
-    router.put('/:id', jwtAuth, medicamentoController.actualizarMedicamento.bind(medicamentoController));
+   // PUT ahora llama a reemplazarMedicamento
+   router.put('/:id', jwtAuth, medicamentoController.reemplazarMedicamento.bind(medicamentoController));
 
-    // DELETE /medicamentos/:id - Eliminar medicamento
-    router.delete('/:id', jwtAuth, medicamentoController.eliminarMedicamento.bind(medicamentoController));
+   // AÑADE ESTA RUTA PATCH para llamar a actualizarMedicamento
+   router.patch('/:id', jwtAuth, medicamentoController.actualizarMedicamento.bind(medicamentoController));
+
+   // DELETE /medicamentos/:id - Eliminar medicamento
+   router.delete('/:id', jwtAuth, medicamentoController.eliminarMedicamento.bind(medicamentoController));
 
     // GET /medicamentos/buscar/principio/:principio - Buscar por principio activo
     router.get('/buscar/principio/:principio', medicamentoController.buscarPorPrincipioActivo.bind(medicamentoController));

@@ -1,5 +1,3 @@
-// src/application/services/medicamentoService.js
-// trae medicamento
 const Medicamento = require('../../dominio/entidades/medicamento');5
 class MedicamentoService {
     constructor(medicamentoRepository) {
@@ -32,6 +30,20 @@ class MedicamentoService {
         });
 
         return await this.medicamentoRepository.update(id, medicamentoActualizado);
+    }
+
+    async reemplazarMedicamento(id, medicamentoData) {
+        const medicamentoExistente = await this.medicamentoRepository.findById(id);
+        if (!medicamentoExistente) {
+            return null;
+        }
+
+        const medicamentoReemplazado = Medicamento.fromObject({
+            _id: id, 
+            ...medicamentoData 
+        });
+
+        return await this.medicamentoRepository.update(id, medicamentoReemplazado);
     }
 
     async eliminarMedicamento(id) {

@@ -1,4 +1,3 @@
-// src/application/controllers/medicamentoController.js
 class MedicamentoController {
     constructor(medicamentoService) {
         this.medicamentoService = medicamentoService;
@@ -62,6 +61,30 @@ class MedicamentoController {
         try {
             const { id } = req.params;
             const medicamento = await this.medicamentoService.actualizarMedicamento(id, req.body);
+
+            if (!medicamento) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Medicamento no encontrado'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: medicamento.toObject()
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+
+    async reemplazarMedicamento(req, res) {
+        try {
+            const { id } = req.params;
+            const medicamento = await this.medicamentoService.reemplazarMedicamento(id, req.body);
 
             if (!medicamento) {
                 return res.status(404).json({
