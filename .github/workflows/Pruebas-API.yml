@@ -1,0 +1,61 @@
+name: Pruebas de API
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-api:
+    runs-on: ubuntu-latest 
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+    env:
+      MONGO_URI: ${{secrets.MONGO_URI}}
+      MONGO_DBNAME: ${{secrets.MONGO_DBNAME}}
+      PORT: ${{secrets.PORT}}
+      SECRET: ${{secrets.SECRET}}
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        
+      - name: Configurar Node.js v18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Instalar dependencias (npm install)
+        run: npm install --force
+
+      - name: Iniciar servidor en segundo plano
+        run: npm run dev &
+
+      - name: Esperar a que el servidor inicie
+        run: sleep 10
+
+      # --- Inicio de las Pruebas ---
+
+      - name: 1. Prueba GET
+        run: curl -s -f http://localhost:${{env.PORT}}/medicamentos | grep "success\":true"
+
+      - name: 2. Prueba PUT
+        run: |
+          curl -s -f -X PUT http://localhost:${{env.PORT}}/medicamentos/68fb1965d0771acc8b9049c0 \
+          -H 'Content-Type: application/json' \
+          -H 'Authorization: Bearer ${{env.SECRET}}' \
+          -d '{"principio_activo":"Prueba1"}' \
+          | grep "Prueba1"
+
+      - name: 3. Prueba PATCH
+        run: |
+          curl -s -X PATCH http://localhost:${{env.PORT}}/medicamentos/68fb1965d0771acc8b9049c0 \
+          -H 'Content-Type: application/json' \
+          -H 'Authorization: Bearer ${{env.SECRET}}' \
+          -d '{"principio_activo":"Prueba2","forma":{"tipo_de_forma": "Comprimido","dosis": {"tipo_de_unidad": "mg","cantidad_de_dosis": 4}},"categoria": "Anticoagulante","es_controlado": true,
+                "requiere_receta": true,
+                "via_administracion": "Oral"}' \
+          | grep "Prueba2"
