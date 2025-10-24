@@ -8,7 +8,7 @@ class MedicamentoController {
             const medicamento = await this.medicamentoService.crearMedicamento(req.body);
             res.status(201).json({
                 success: true,
-                data: medicamento.toObject()
+                data: medicamento 
             });
         } catch (error) {
             res.status(500).json({
@@ -32,7 +32,7 @@ class MedicamentoController {
 
             res.json({
                 success: true,
-                data: medicamento.toObject()
+                data: medicamento
             });
         } catch (error) {
             res.status(500).json({
@@ -47,7 +47,7 @@ class MedicamentoController {
             const medicamentos = await this.medicamentoService.obtenerTodosLosMedicamentos();
             res.json({
                 success: true,
-                data: medicamentos.map(med => med.toObject())
+                data: medicamentos
             });
         } catch (error) {
             res.status(500).json({
@@ -71,7 +71,7 @@ class MedicamentoController {
 
             res.json({
                 success: true,
-                data: medicamento.toObject()
+                data: medicamento
             });
         } catch (error) {
             res.status(500).json({
@@ -95,7 +95,7 @@ class MedicamentoController {
 
             res.json({
                 success: true,
-                data: medicamento.toObject()
+                data: medicamento
             });
         } catch (error) {
             res.status(500).json({
@@ -136,7 +136,7 @@ class MedicamentoController {
             
             res.json({
                 success: true,
-                data: medicamentos.map(med => med.toObject())
+                data: medicamentos
             });
         } catch (error) {
             res.status(500).json({
@@ -153,7 +153,22 @@ class MedicamentoController {
             
             res.json({
                 success: true,
-                data: medicamentos.map(med => med.toObject())
+                data: medicamentos
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+
+    async obtenerMedicamentosEliminados(req, res) {
+        try {
+            const medicamentos = await this.medicamentoService.obtenerMedicamentosEliminados();
+            res.json({
+                success: true,
+                data: medicamentos
             });
         } catch (error) {
             res.status(500).json({

@@ -7,7 +7,11 @@ class Medicamento {
         es_controlado,
         requiere_receta,
         via_administracion,
-        alternativas = []
+        alternativas = [],
+        fechaCreacion = null,
+        fechaActualizacion = null,
+        eliminado = false,
+        fechaEliminacion = null
     }) {
         this._id = _id;
         this.principio_activo = principio_activo;
@@ -17,6 +21,10 @@ class Medicamento {
         this.requiere_receta = requiere_receta;
         this.via_administracion = via_administracion;
         this.alternativas = alternativas;
+        this.fechaCreacion = fechaCreacion;
+        this.fechaActualizacion = fechaActualizacion;
+        this.eliminado = eliminado;
+        this.fechaEliminacion = fechaEliminacion;
     }
 
     static fromObject(data) {
@@ -28,7 +36,11 @@ class Medicamento {
             es_controlado: data.es_controlado,
             requiere_receta: data.requiere_receta,
             via_administracion: data.via_administracion,
-            alternativas: data.alternativas || []
+            alternativas: data.alternativas || [],
+            fechaCreacion: data.fechaCreacion,
+            fechaActualizacion: data.fechaActualizacion,
+            eliminado: data.eliminado,
+            fechaEliminacion: data.fechaEliminacion
         });
     }
 
@@ -41,7 +53,11 @@ class Medicamento {
             es_controlado: this.es_controlado,
             requiere_receta: this.requiere_receta,
             via_administracion: this.via_administracion,
-            alternativas: this.alternativas
+            alternativas: this.alternativas,
+            fechaCreacion: this.fechaCreacion,
+            fechaActualizacion: this.fechaActualizacion,
+            eliminado: this.eliminado,
+            fechaEliminacion: this.fechaEliminacion
         };
     }
 }

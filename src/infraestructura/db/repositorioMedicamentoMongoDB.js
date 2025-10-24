@@ -10,7 +10,7 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
 
     async save(medicamento) {
         const medicamentoData = medicamento.toObject();
-        delete medicamentoData._id; // Mongo genera el _id
+        delete medicamentoData._id;
 
         const result = await this.collection.insertOne(medicamentoData);
         return Medicamento.fromObject({
@@ -22,7 +22,11 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
     async findById(id) {
         try {
             const objectId = new ObjectId(id);
-            const result = await this.collection.findOne({ _id: objectId });
+            const query = { 
+                _id: objectId, 
+                eliminado: { $ne: true }
+            };
+            const result = await this.collection.findOne(query);
             return result ? Medicamento.fromObject(result) : null;
         } catch (err) {
             console.error('findById error:', err);
@@ -31,7 +35,8 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
     }
 
     async findAll() {
-        const results = await this.collection.find({}).toArray();
+        const query = { eliminado: { $ne: true } };
+        const results = await this.collection.find(query).toArray();
         return results.map(med => Medicamento.fromObject(med));
     }
 
@@ -47,13 +52,15 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
             );
 
             if (result.matchedCount === 0) return null;
-            return await this.findById(id);
+            
+            const updatedDoc = await this.collection.findOne({ _id: objectId });
+            return updatedDoc ? Medicamento.fromObject(updatedDoc) : null;
+
         } catch (err) {
             console.error('update error:', err);
             return null;
         }
     }
-
     async delete(id) {
         try {
             const objectId = new ObjectId(id);
@@ -66,16 +73,26 @@ class MongoRepositorioMedicamento extends RepositorioMedicamento {
     }
 
     async findByPrincipioActivo(principioActivo) {
-        const results = await this.collection.find({ 
-            principio_activo: new RegExp(principioActivo, 'i') 
-        }).toArray();
+        const query = { 
+            principio_activo: new RegExp(principioActivo, 'i'),
+            eliminado: { $ne: true }
+        };
+        const results = await this.collection.find(query).toArray();
         return results.map(med => Medicamento.fromObject(med));
     }
 
     async findByCategoria(categoria) {
-        const results = await this.collection.find({ 
-            categoria: new RegExp(categoria, 'i') 
-        }).toArray();
+        const query = { 
+            categoria: new RegExp(categoria, 'i'),
+            eliminado: { $ne: true }
+        };
+        const results = await this.collection.find(query).toArray();
+        return results.map(med => Medicamento.fromObject(med));
+    }
+
+    async findAllEliminados() {
+        const query = { eliminado: true };
+        const results = await this.collection.find(query).toArray();
         return results.map(med => Medicamento.fromObject(med));
     }
 }

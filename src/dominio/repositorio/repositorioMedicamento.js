@@ -1,4 +1,3 @@
-// src/domain/repositories/RepositorioMedicamento.js
 class RepositorioMedicamento {
     async save(medicamento) {
         throw new Error('Method not implemented');

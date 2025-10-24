@@ -1,11 +1,20 @@
-const Medicamento = require('../../dominio/entidades/medicamento');5
+const Medicamento = require('../../dominio/entidades/medicamento');
+
 class MedicamentoService {
     constructor(medicamentoRepository) {
         this.medicamentoRepository = medicamentoRepository;
     }
 
     async crearMedicamento(medicamentoData) {
-        const medicamento = Medicamento.fromObject(medicamentoData);
+        const dataConAuditoria = {
+            ...medicamentoData,
+            fechaCreacion: new Date(),
+            fechaActualizacion: new Date(),
+            eliminado: false,
+            fechaEliminacion: null
+        };
+
+        const medicamento = Medicamento.fromObject(dataConAuditoria);
         return await this.medicamentoRepository.save(medicamento);
     }
 
@@ -26,7 +35,8 @@ class MedicamentoService {
         const medicamentoActualizado = Medicamento.fromObject({
             ...medicamentoExistente.toObject(),
             ...medicamentoData,
-            _id: id
+            _id: id,
+            fechaActualizacion: new Date()
         });
 
         return await this.medicamentoRepository.update(id, medicamentoActualizado);
@@ -40,14 +50,29 @@ class MedicamentoService {
 
         const medicamentoReemplazado = Medicamento.fromObject({
             _id: id, 
-            ...medicamentoData 
+            ...medicamentoData,
+            fechaCreacion: medicamentoExistente.fechaCreacion, 
+            fechaActualizacion: new Date(),
+            eliminado: false,
+            fechaEliminacion: null
         });
 
         return await this.medicamentoRepository.update(id, medicamentoReemplazado);
     }
 
     async eliminarMedicamento(id) {
-        return await this.medicamentoRepository.delete(id);
+        const medicamentoExistente = await this.medicamentoRepository.findById(id);
+        if (!medicamentoExistente) {
+            return null; 
+        }
+
+        medicamentoExistente.eliminado = true;
+        medicamentoExistente.fechaEliminacion = new Date();
+        medicamentoExistente.fechaActualizacion = new Date(); 
+
+        const resultado = await this.medicamentoRepository.update(id, medicamentoExistente);
+        
+        return resultado !== null; 
     }
 
     async buscarPorPrincipioActivo(principioActivo) {
@@ -56,6 +81,10 @@ class MedicamentoService {
 
     async buscarPorCategoria(categoria) {
         return await this.medicamentoRepository.findByCategoria(categoria);
+    }
+
+    async obtenerMedicamentosEliminados() {
+        return await this.medicamentoRepository.findAllEliminados();
     }
 }
 
